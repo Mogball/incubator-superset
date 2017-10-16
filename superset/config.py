@@ -335,6 +335,11 @@ BLUEPRINTS = []
 # into a proxied one
 TRACKING_URL_TRANSFORMER = lambda x: x
 
+# The session timeout time in minutes. If this is set to a
+# nonzero value, the app session type will be set to permanent
+# with the specified timeout
+SESSION_TIMEOUT_MINUTES = 0
+
 try:
     if CONFIG_PATH_ENV_VAR in os.environ:
         # Explicitly import config module that is not in pythonpath; useful

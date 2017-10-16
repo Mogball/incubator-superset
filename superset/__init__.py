@@ -161,4 +161,10 @@ module_datasource_map = app.config.get("DEFAULT_MODULE_DS_MAP")
 module_datasource_map.update(app.config.get("ADDITIONAL_MODULE_DS_MAP"))
 ConnectorRegistry.register_sources(module_datasource_map)
 
+# Set session timeout, if any
+session_timeout_minutes = app.config.get("SESSION_TIMEOUT_MINUTES")
+if session_timeout_minutes:
+    appbuilder.get_session.permanent = True
+    app.permanent_session_lifetime = 60 * session_timeout_minutes
+
 from superset import views  # noqa
