@@ -8,6 +8,8 @@ import d3tip from 'd3-tip';
 import { getColorFromScheme } from '../javascripts/modules/colors';
 import { customizeToolTip, d3TimeFormatPreset, d3FormatPreset, tryNumify } from '../javascripts/modules/utils';
 
+import { cumulativeLineWithFocusChart } from './custom_nvd3';
+
 // CSS
 import '../node_modules/nvd3/build/nv.d3.min.css';
 import './nvd3_vis.css';
@@ -71,7 +73,9 @@ function getMaxLabelSize(container, axisClass) {
   // axis class = .nv-x  // x axis on time series line chart
   const labelEls = container.find(`.${axisClass} text`).not('.nv-axislabel');
   const labelDimensions = labelEls.map(i => labelEls[i].getComputedTextLength());
-  return Math.max(...labelDimensions);
+  const labelSize = Math.max(...labelDimensions);
+  if (!isFinite(labelSize)) return 0;
+  return labelSize;
 }
 
 /* eslint-disable camelcase */
@@ -156,6 +160,7 @@ function nvd3Vis(slice, payload) {
           chart = nv.models.lineWithFocusChart();
           chart.focus.xScale(d3.time.scale.utc());
           chart.x2Axis.staggerLabels(false);
+          chart.duration(0);
         } else {
           chart = nv.models.lineChart();
         }
@@ -255,12 +260,20 @@ function nvd3Vis(slice, payload) {
         break;
 
       case 'compare':
-        chart = nv.models.cumulativeLineChart();
+        if (fd.show_brush) {
+          chart = cumulativeLineWithFocusChart();
+          chart.focus.xScale(d3.time.scale.utc());
+          chart.x2Axis.staggerLabels(false);
+          chart.duration(0);
+        } else {
+          chart = nv.models.cumulativeLineChart();
+        }
         chart.xScale(d3.time.scale.utc());
         chart.useInteractiveGuideline(true);
         chart.xAxis
         .showMaxMin(false)
         .staggerLabels(true);
+        chart.interpolate(fd.line_interpolation);
         break;
 
       case 'bubble':
@@ -286,7 +299,14 @@ function nvd3Vis(slice, payload) {
         break;
 
       case 'area':
-        chart = nv.models.stackedAreaChart();
+        if (fd.show_brush) {
+          chart = nv.models.stackedAreaWithFocusChart();
+          chart.focus.xScale(d3.time.scale.utc());
+          chart.x2Axis.staggerLabels(false);
+          chart.duration(0);
+        } else {
+          chart = nv.models.stackedAreaChart();
+        }
         chart.showControls(fd.show_controls);
         chart.style(fd.stacked_style);
         chart.xScale(d3.time.scale.utc());
@@ -436,11 +456,28 @@ function nvd3Vis(slice, payload) {
 
     if (fd.show_markers) {
       svg.selectAll('.nv-point')
-      .style('stroke-opacity', 1)
-      .style('fill-opacity', 1);
+        .style('stroke-opacity', 1)
+        .style('fill-opacity', 1);
+      if (chart.focusEnable && chart.focusEnable()) {
+        // Update the markers when changing focus
+        chart.dispatch.on('renderEnd', () =>
+          svg.selectAll('.nv-point')
+            .style('stroke-opacity', 1)
+            .style('fill-opacity', 1),
+        );
+      }
     }
 
     if (chart.yAxis !== undefined || chart.yAxis2 !== undefined) {
+      // In some cases the chart needs to render first
+      // before we can grab the correct margins
+      svg
+        .datum(data)
+        .transition().duration(500)
+        .attr('height', height)
+        .attr('width', width)
+        .call(chart);
+
       // Hack to adjust y axis left margin to accommodate long numbers
       const marginPad = isExplore ? width * 0.01 : width * 0.03;
       const maxYAxisLabelWidth = chart.yAxis2 ? getMaxLabelSize(slice.container, 'nv-y1')

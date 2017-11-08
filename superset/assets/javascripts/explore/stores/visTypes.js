@@ -281,6 +281,10 @@ export const visTypes = {
         controlSetRows: [
           ['color_scheme'],
           ['x_axis_format', 'y_axis_format'],
+          ['show_brush', 'show_legend'],
+          ['show_markers', 'contribution'],
+          ['contribution'],
+          ['line_interpolation'],
         ],
       },
       sections.NVD3TimeSeries[1],
@@ -302,9 +306,9 @@ export const visTypes = {
       {
         label: t('Chart Options'),
         controlSetRows: [
-          ['show_brush', 'show_legend'],
-          ['line_interpolation', 'stacked_style'],
           ['color_scheme'],
+          ['line_interpolation', 'stacked_style'],
+          ['show_brush', 'show_legend'],
           ['rich_tooltip', 'contribution'],
           ['show_controls', null],
         ],
