@@ -8,6 +8,7 @@ import visMap from '../../../visualizations/main';
 import { d3format } from '../../modules/utils';
 import ExploreActionButtons from './ExploreActionButtons';
 import EditableTitle from '../../components/EditableTitle';
+import AlteredSliceTag from '../../components/AlteredSliceTag';
 import FaveStar from '../../components/FaveStar';
 import TooltipWrapper from '../../components/TooltipWrapper';
 import Timer from '../../components/Timer';
@@ -225,6 +226,13 @@ class ChartContainer extends React.PureComponent {
       </div>);
   }
 
+  renderAlteredTag() {
+    const origFormData = (this.props.slice && this.props.slice.form_data) || {};
+    const currentFormData = this.props.formData;
+    const tagProps = { origFormData, currentFormData };
+    return (<AlteredSliceTag {...tagProps} />);
+  }
+
   renderChart() {
     if (this.props.alert) {
       return this.renderAlert();
@@ -295,6 +303,8 @@ class ChartContainer extends React.PureComponent {
                   </TooltipWrapper>
                 </span>
               }
+
+              {this.renderAlteredTag()}
 
               <div className="pull-right">
                 {this.props.chartStatus === 'success' &&
