@@ -35,6 +35,7 @@ const vizMap = {
   dual_line: require('./nvd3_vis.js'),
   event_flow: require('./EventFlow.jsx'),
   paired_ttest: require('./paired_ttest.jsx'),
+  rose: require('./rose.jsx'),
   partition: require('./partition.js'),
 };
 export default vizMap;

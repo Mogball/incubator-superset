@@ -1507,6 +1507,17 @@ export const controls = {
     controlName: 'TimeSeriesColumnControl',
   },
 
+  rose_area_proportion: {
+    type: 'CheckboxControl',
+    label: t('Use Area Proportions'),
+    description: t(
+      'Check if the Rose Chart should use segment area instead of ' +
+      'segment radius for proportioning',
+    ),
+    default: false,
+    renderTrigger: true,
+  },
+
   time_series_option: {
     type: 'SelectControl',
     label: t('Options'),
